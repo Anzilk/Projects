@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data>
+
+    <record id="sale_approval_view_form" model="ir.ui.view">
+        <field name="name">sale.order.view.form.inherit.sale.approval</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_confirm']" position="before">
+          <button name="action_send_to_manager"  type="object" class="oe_highlight" string="Send To Manager" attrs="{'invisible': ['|',('state','!=','draft'),('is_send_to_manager','!=',False)] }"/>
+                <button name="action_approve" type="object" groups="sale_approval.sale_approval_manager" class="oe_highlight"  string="Approve" attrs="{'invisible': [('state','!=','waiting')] }"/>
+                <button name="action_disapprove" groups="sale_approval.sale_approval_manager"  type="object" string="Disapprove"  attrs="{'invisible': [('state','!=','waiting')] }"/>
+        </xpath>
+            <xpath expr="//field[@name='state']" position="replace">
+                <field name="state" widget="statusbar" statusbar_visible="draft,waiting,sent,sale" />
+            </xpath>
+            <field name="payment_term_id" position="after">
+                <field name="is_send_to_manager" invisible="1"/>
+            </field>
+        </field>
+    </record>
+
+</data>
+</odoo>

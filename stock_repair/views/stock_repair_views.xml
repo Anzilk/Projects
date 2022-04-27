@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<record id="stock_repair_action" model="ir.actions.act_window">
+    <field name="name">Repair</field>
+    <field name="res_model">stock.repair</field>
+    <field name="view_mode">tree,form</field>
+</record>
+
+<record id="stock_repair_view_tree" model="ir.ui.view">
+        <field name="name">stock.repair.tree</field>
+        <field name="model">stock.repair</field>
+        <field name="arch" type="xml">
+            <tree string="Channel" >
+                <field name="sale_order_id"/>
+                <field name="product_id"/>
+                <field name="customer"/>
+            </tree>
+        </field>
+    </record>
+    <record id="stock_repair_view_form" model="ir.ui.view">
+        <field name="name">stock.repair.form</field>
+        <field name="model">stock.repair</field>
+        <field name="arch" type="xml">
+            <form string="Stock Repair Form">
+                <header>
+                     <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,done"/>
+                    <button type="object" name="action_done" string="Done" attrs="{'invisible':[('state','=','done')]}"/>
+                </header>
+                <sheet>
+
+
+<!--                           <h1> <field name="name"/></h1>-->
+                     <group>
+                        <group>
+
+                            <field name="sale_order_id"/>
+                            <field name="product_id"/>
+                            <field name="customer"/>
+                        </group>
+                     </group>
+                </sheet>
+                <div class="oe_chatter">
+                     <field name="message_follower_ids" widget="mail_followers"/>
+                     <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+     </field>
+    </record>
+     <record id="sale_order_repair_form" model="ir.ui.view">
+        <field name="name">sale_order_repair_form.inherit.sale.order</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <field name="payment_term_id" position="after">
+                  <field name="repair"/>
+<!--                  <field name="is_repair"/>-->
+            </field>
+             <xpath expr='//button[@name="action_cancel"]' position='attributes'>
+                <attribute name="attrs" >{'invisible': [('repair','=',True)] }</attribute>
+            </xpath>
+        </field>
+    </record>
+
+ </odoo>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem
+            action="stock_repair_action"
+            id="stock_repair_menu"
+            parent="stock.menu_stock_warehouse_mgmt" sequence="150"
+            />
+
+</odoo>
