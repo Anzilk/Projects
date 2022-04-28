@@ -19,6 +19,7 @@ class ScrapSourceLocation(models.Model):
     customer = fields.Char(string="Customer",
                            related='sale_order_id.partner_id.name')
 
+    # to check customer have any pending request
     @api.onchange('sale_order_id')
     def on_change_product_id(self):
         # print("hii")
@@ -34,6 +35,7 @@ class ScrapSourceLocation(models.Model):
         return {'domain': {'product_id': [
             ('id', '=', self.sale_order_id.order_line.product_id.ids)]}}
 
+    # action  on  button
     def action_done(self):
         self.state = 'done'
 

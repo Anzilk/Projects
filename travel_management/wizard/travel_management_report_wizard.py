@@ -41,8 +41,7 @@ class TravelManagementReportWizard(models.TransientModel):
                 'travel_management.action_travel_package').\
             report_action(self, data=data)
 
-    # print xlsx report
-
+    # print xlsx report button action
     def action_print_xlsx(self):
         # print("hii its xlsx")
         if self.date_from is not False and self.date_to is not False:
@@ -104,18 +103,18 @@ class TravelManagementReportWizard(models.TransientModel):
 
         else:
             # print("false code here")
-            query = """SELECT l.name,d.name,p.state,v.name
-                                              FROM travel_package as p
-                                               INNER JOIN travel_vehicle as v
-                                               ON p.vehicle_list_id=v.id
-                                               INNER JOIN travel_location as l
-                                               ON p.source_location_package_id=
-                                               l.id
-                                               INNER JOIN travel_location as d
-                                               ON p.destination_location_package_id=d.id
-                                                WHERE package_end_date<='%s'
-                                               AND package_customer='%s' """ \
-                    % (data['date_to'], data['customer_id'])
+            query =\
+                """SELECT l.name,d.name,p.state,v.name 
+                FROM travel_package as p 
+                INNER JOIN travel_vehicle as v
+                ON p.vehicle_list_id=v.id
+                INNER JOIN travel_location as l
+                ON p.source_location_package_id=l.id
+                INNER JOIN travel_location as d
+                ON p.destination_location_package_id=d.id
+                WHERE package_end_date<='%s'
+                AND package_customer='%s' """ \
+                % (data['date_to'], data['customer_id'])
             self._cr.execute(query)
             records = self.env.cr.fetchall()
 

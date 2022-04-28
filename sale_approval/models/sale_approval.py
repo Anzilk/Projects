@@ -7,8 +7,8 @@ class SaleApproval(models.Model):
     _inherit = "sale.order"
 
     is_send_to_manager = fields.Boolean("Send To Manager", default=True)
-    state = fields.Selection(selection_add=[
-                              ('waiting', 'Waiting For Approval'), ("sent",)],
+    state = fields.Selection(
+        selection_add=[('waiting', 'Waiting For Approval'), ("sent",)],
         ondelete={'waiting': 'set default'})
     # type = fields.Selection(selection_add=[
     #                           ('waiting', 'Waiting For Approval')],
@@ -22,6 +22,7 @@ class SaleApproval(models.Model):
         for record in self.order_line:
             # print(record.price_unit)
             # print(record.product_template_id.list_price)
+            # print(record.product_id.list_price, "t")
             new_price = record.price_unit
             unit_price = record.product_template_id.list_price
             if new_price != unit_price:

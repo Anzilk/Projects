@@ -6,7 +6,7 @@ from odoo.http import request
 class Snippets(http.Controller):
     @http.route(['/elearning_snippet/elearning'],
                 type='json', auth="public", website=True)
-    def service_request(self, products_per_slide=4, **kwargs):
+    def service_request(self, products_per_slide=4, ):
         records = request.env[
             'slide.channel'].search([], order='create_date desc')
         # print(records,"hii")
@@ -29,15 +29,13 @@ class Snippets(http.Controller):
         # values = {'product': records}
         values = {
             "objects": records_grouped,
-            "events_per_slide": products_per_slide,
             "num_slides": len(records_grouped),
             "uniqueId": "pc-%d" % int(time.time() * 1000),
         }
         response = http.Response(
-            template='elearning_snippet.s_event_carousel_items',
+            template='elearning_snippet.s_courses_carousel_items',
             qcontext=values)
         return response.render()
 
         # return request.env['ir.ui.view']._render_template(
         #         'elearning_snippet.s_snippet_courses', values)
-

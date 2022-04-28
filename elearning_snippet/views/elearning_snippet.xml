@@ -17,15 +17,11 @@
 
     <template id="s_snippet_courses" name="courses">
 
-               <t t-foreach="events" t-as="data">
-
+               <t t-foreach="courses" t-as="data">
                  <div  style="float:left; width:25%;" >
-<!--                     <div  class="card h-100" t-att-data-url="data['url']">-->
+
                          <h5 class="card-header" t-esc="data.name"/>
-<!--                         <t t-set="b" t-value="data['name']"/>-->
-<!--                         <t t-set="a" t-value="data['id']"/>-->
-<!--                         <t t-esc="data['id']"/>-->
-<!--                         <t t-esc="a"/>-->
+
                          <a t-attf-href="/slides/#{ slug(data) }">
                              <img class ="card-img-top p-3" loading="lazy" t-attf-src="/web/image?model=slide.channel&amp;field=image_1920&amp;id=#{data.id}"
                                   style="width:200px; height:200px;"/>
@@ -34,29 +30,24 @@
                              <div class="card-text mt-1">
                                  <b><h5 t-esc="data.description"/></b>
                              </div>
-<!--                         </div>-->
-<!--                  <div class="card-body">-->
-<!--                       <t t-foreach="data['tags']" t-as="tag">-->
+
                              <div class="card-text">
                                   <t t-foreach="data.tag_ids" t-as="tag">
-<!--                                      <br></br>-->
-                                 <t style="padding-bottom:-10px;" t-esc="tag.name"/>
+                                    <t style="padding-bottom:-10px;" t-esc="tag.name"/>
                                   </t>
                              </div>
-<!--                        </t>-->
-                         </div>
-                     </div>
-<!--                 </div>-->
+                          </div>
+                 </div>
 
-             </t>
+               </t>
             </template>
 
 
-    <template id="s_event_carousel_items">
-        <div class="event_carousel_slider oe_website_event">
+    <template id="s_courses_carousel_items">
+        <div class="courses_carousel_slider oe_website_courses">
             <input
                 type="hidden"
-                name="event_count"
+                name="course_count"
                 t-if="objects"
                 t-att-value="len(objects)"/>
             <div
@@ -64,7 +55,7 @@
                 class="carousel slide d-flex"
                 data-ride="carousel">
                 <a
-                    class="o_event_carousel_control carousel-control-prev position-relative"
+                    class="o_courses_carousel_control carousel-control-prev position-relative"
                     t-att-href="'#' + uniqueId"
                     role="button"
                     data-slide="prev"
@@ -73,8 +64,8 @@
                     <span class="sr-only">Previous</span>
                 </a>
                 <div class="carousel-inner">
-                    <t t-foreach="objects" t-as="events">
-                        <div t-attf-class="carousel-item #{'' if events_index else 'active'}">
+                    <t t-foreach="objects" t-as="courses">
+                        <div t-attf-class="carousel-item #{'' if courses_index else 'active'}">
                             <div>
                                 <t t-call="elearning_snippet.s_snippet_courses"/>
                             </div>
@@ -82,7 +73,7 @@
                     </t>
                 </div>
                 <a
-                    class="o_event_carousel_control carousel-control-next position-relative"
+                    class="o_courses_carousel_control carousel-control-next position-relative"
                     t-att-href="'#' + uniqueId"
                     role="button"
                     data-slide="next"

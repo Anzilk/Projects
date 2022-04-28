@@ -1,6 +1,5 @@
 from odoo import models, fields, api
-from datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
 # from odoo.exceptions import UserError
 
 
@@ -58,9 +57,9 @@ class TravelManagement(models.Model):
     current_user_id = fields.Many2one('res.users', 'Current User',
                                       default=lambda self: self.env.user,
                                       readonly=True)
-    user_id = fields.Many2one('res.users', 'Current User',
-                              default=lambda self: self.env.user,
-                              readonly=True)
+    # user_id = fields.Many2one('res.users', 'Current User',
+    #                           default=lambda self: self.env.user,
+    #                           readonly=True)
 
     # @api.onchange('customer_id')
     # def on_change_customer_id(self):
