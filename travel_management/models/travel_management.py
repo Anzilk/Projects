@@ -168,8 +168,9 @@ class EstimationAmountLine(models.Model):
     _description = "Estimation Amount Line"
 
     estimation_line_id = fields.Many2one("travel.management")
-    estimation_service_id = fields.Many2one("product.template",
-                                            string="Service")
+    estimation_service_id = fields.Many2one(
+        "product.template", string="Service",
+        domain="[('detailed_type', '=', 'service')]")
     quantity = fields.Integer("Quantity")
     # unit_id = fields.Many2one("uom.uom", "Unit")
     amount = fields.Float("Amount")
@@ -186,9 +187,9 @@ class EstimationAmountLine(models.Model):
             line.subtotal = line.quantity * line.amount
 
 # show only service products
-    @api.onchange('estimation_service_id')
-    def on_change_vehicle_service(self):
-        # print("hii")
-        # print(self)
-        return {'domain': {'estimation_service_id': [
-            ('detailed_type', '=', 'service')]}}
+#     @api.onchange('estimation_service_id')
+#     def on_change_vehicle_service(self):
+#         # print("hii")
+#         # print(self)
+#         return {'domain': {'estimation_service_id': [
+#             ('detailed_type', '=', 'service')]}}

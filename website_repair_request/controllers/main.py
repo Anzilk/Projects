@@ -39,8 +39,6 @@ class ServiceRequest(http.Controller):
         #     'description': kw[description]
         # }
 
-
-
         request.env['repair.order'].sudo().create(kw)
         return request.render(
             "website_repair_request.request_succesful", {})

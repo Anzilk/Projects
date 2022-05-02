@@ -4,6 +4,7 @@
     'depends': ['base', 'survey'],
     'category': 'Travel',
     'installable': True,
-    'data': [],
+    'data': ['views/survey_contacts_views.xml',
+             'security/ir.model.access.csv'],
 
 }
