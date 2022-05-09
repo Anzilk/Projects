@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+   <data>
+    	<record id="website_menu_service_request" model="website.menu">
+        	<field name="name">Requests</field>
+        	<field name="url">/request</field>
+        	<field name="parent_id" ref="website.main_menu"/>
+        	<field name="sequence" type="int">50</field>
+    	</record>
+   </data>
+
+
+
+    	<template id="request_form">
+        	<t t-call="website.layout">
+				<div id="wrap">
+					<div class="oe_structure">
+
+
+
+						<section class="s_website_form" data-vcss="001" data-snippet="s_website_form">
+                              <div class="container">
+								<form id="request_form" action="/succesful" method="POST">
+									 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+									<div class="s_website_form_rows row s_col_no_bgcolor">
+										<div class="form-group col-12 s_website_form_field s_website_form_required">
+											<div class="row s_col_no_resize s_col_no_bgcolor">
+												<label class="col-form-label col-sm-auto s_website_form_label"
+													style="width: 200px" >
+													<span class="s_website_form_label_content">Customer</span>
+													<span class="s_website_form_mark">*</span>
+												</label>
+													<div class="col-sm">
+													<select name="partner_id" id="partner_id" required=""
+															class="form-control link-style">
+														<option value="">customer..</option>
+														<t t-foreach="customers" t-as="customer">
+															<option t-att-value="customer.id">
+																<t t-esc="customer.name" t-att-value="customer.id"/>
+															</option>
+														</t>
+													</select>
+												</div>
+											</div>
+										</div>
+
+
+<!--										<div class="form-group col-12 s_website_form_field s_website_form_required">-->
+<!--											<div class="row s_col_no_resize s_col_no_bgcolor">-->
+<!--												<label class="col-form-label col-sm-auto s_website_form_label"-->
+<!--													style="width: 200px" >-->
+<!--													<span class="s_website_form_label_content">Delivey Address</span>-->
+<!--													<span class="s_website_form_mark">*</span>-->
+<!--												</label>-->
+<!--													<div class="col-sm">-->
+<!--													<select name="customer_id" id="customer_id"-->
+<!--															class="form-control link-style">-->
+<!--														<option value="">Dellivery Address..</option>-->
+<!--														<t t-foreach="customers" t-as="customer">-->
+<!--															<option t-att-value="customer.id">-->
+<!--																<t t-esc="customer.name" t-att-value="customer.id"/>-->
+<!--															</option>-->
+<!--														</t>-->
+<!--													</select>-->
+<!--												</div>-->
+<!--											</div>-->
+<!--										</div>-->
+
+
+
+
+										<div class="form-group col-12 s_website_form_field s_website_form_required"
+											data-type="text" data-name="Field">
+											<div class="row s_col_no_resize s_col_no_bgcolor">
+												<label class="col-form-label col-sm-auto s_website_form_label"
+													style="width: 200px">
+													<span class="s_website_form_label_content">Product</span>
+													<span class="s_website_form_mark">*</span>
+												</label>
+												<div class="col-sm">
+													<select name="product_id" id="product_id" required=""
+															class="form-control link-style">
+														<option value="">Product...</option>
+														<t t-foreach="products" t-as="product">
+															<option t-att-value="product.id">
+																<t t-esc="product.name" t-att-value="product.id"/>
+															</option>
+														</t>
+													</select>
+												</div>
+											</div>
+										</div>
+
+
+										<div class="form-group col-12 s_website_form_field s_website_form_required">
+											<div class="row s_col_no_resize s_col_no_bgcolor">
+												<label class="col-form-label col-sm-auto s_website_form_label"
+													style="width: 200px" >
+													<span class="s_website_form_label_content">Quantity</span>
+													<span class="s_website_form_mark">*</span>
+												</label>
+												<div class="col-sm">
+													<input type="number"
+														class="form-control s_website_form_input" name="product_qty"
+														required="" style="width: 200px"/>
+												</div>
+											</div>
+										</div>
+										<div class="form-group col-12 s_website_form_field s_website_form_required"
+											data-type="text" data-name="Field">
+											<div class="row s_col_no_resize s_col_no_bgcolor">
+												<label class="col-form-label col-sm-auto s_website_form_label"
+													style="width: 200px" >
+													<span class="s_website_form_label_content">Details</span>
+													<span class="s_website_form_mark">*</span>
+												</label>
+												<div class="col-sm">
+													<textarea class="form-control s_website_form_input"
+															name="description" required=""/>
+												</div>
+											</div>
+										</div>
+											<div  class="clearfix oe_login_buttons">
+											<button type="submit" class="btn btn-primary pull-left">Submit</button>
+
+										</div>
+									</div>
+								</form>
+							  </div>
+
+						</section>
+					</div>
+				</div>
+        	</t>
+    	</template>
+
+<!--	<record id="website_repair_request.request_succesful" model="website.page">-->
+<!--        	<field name="name">Succesfull</field>-->
+<!--        	<field name="type">qweb</field>-->
+<!--        	<field name="url">/succesfull</field>-->
+<!--        	<field name="website_published">True</field>-->
+<!--        	<field name="key">website_repair_request.request_succesful</field>-->
+<!--        	<field name="arch" type="xml">-->
+<!--					<t name="success" t-name="website_repair_request.request_succesful">-->
+<!--						<t t-call="website.layout">-->
+<!--							<div id="wrap">-->
+<!--								<div class="container">-->
+<!--										 <h1>Successfully Completed</h1>-->
+<!--										 <div class="row">-->
+<!--									 </div>-->
+<!--								</div>-->
+<!--							</div>-->
+
+
+
+<!--						</t>-->
+<!--					</t>-->
+<!--			</field>-->
+<!--	</record>-->
+<!--</odoo>-->
+
+
+	<record id="request_succesful" model="website.page">
+        <field name="name">Thanks (Contact us)</field>
+        <field name="type">qweb</field>
+        <field name="url">/succesfully</field>
+        <field name="website_indexed" eval="False"/>
+        <field name="is_published">True</field>
+        <field name="key">website_repair_request.request_succesful</field>
+        <field name="arch" type="xml">
+            <t name="Thanks (Contact us)" t-name="website.contactus_thanks">
+                <t t-call="website.layout">
+                    <div id="wrap" class="oe_structure oe_empty">
+                        <section class="s_text_block pt40 pb40 o_colored_level " data-snippet="s_text_block">
+                            <div class="container s_allow_columns">
+                                <div class="row">
+                                    <div class="col-lg-7 col-xl-6 mr-lg-auto">
+                                        <span class="d-block fa fa-4x fa-thumbs-up mx-auto rounded-circle bg-primary"/><br/>
+                                        <h1 class="text-center">Thank You!</h1>
+                                        <div class="pb16 pt16 s_hr" data-snippet="s_hr" data-name="Separator">
+                                            <hr class="mx-auto border-top w-50 border-dark text-center"/>
+                                        </div>
+                                        <h5 class="text-center">
+                                            <span class="fa fa-check-circle"/>
+                                            <span>Your message has been sent <b>successfully</b></span>
+                                        </h5>
+                                        <p class="text-center">We will get back to you shortly.</p>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <ul class="list-unstyled mb-0 pl-2">
+                                            <li>My Company</li>
+                                            <li><i class="fa fa-map-marker fa-fw mr-2"/><span class="o_force_ltr">3575 Fake Buena Vista Avenue</span></li>
+                                            <li><i class="fa fa-phone fa-fw mr-2"/><span class="o_force_ltr">+1 (650) 555-0111</span></li>
+                                            <li><i class="fa fa-1x fa-fw fa-envelope mr-2"/><span>info@yourcompany.example.com</span></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </t>
+            </t>
+        </field>
+    </record>
+</odoo>
