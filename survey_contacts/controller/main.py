@@ -9,7 +9,7 @@ class Surveycontact(Survey):
     @http.route('/survey/submit/<string:survey_token>/<string:answer_token>',
                 type='json', auth='public', website=True)
     def survey_submit(self, survey_token, answer_token, **post):
-        print("fgif", post)
+        # print("fgif", post)
         # print("fgi", post[1])
 
         """ Submit a page from the survey.
@@ -62,15 +62,9 @@ class Surveycontact(Survey):
         # take records from survey.contacts
         records = request.env['survey.contacts'] \
             .search([('question_id', '=', questions.ids)])
-        print(records, "1")
-        print(records.question_id, "1")
-        vals = {
-            'name': '',
-            'phone': '',
-            'mobile': '',
-            'email': '',
-            'website': ''
-        }
+        # print(records, "1")
+        # print(records.question_id, "1")
+        vals = {}
         # Prepare answers / comment by question, validate and save answers
         for question in questions:
             inactive_questions = request.env[
@@ -83,38 +77,16 @@ class Surveycontact(Survey):
             # print(question.title, "single question")
             # loop in each survey contacts
             for rec in records:
-                if question == rec.question_id:
-                    # print("match")
-                    # print(answer, "answer")
-                    # print(rec.contact_fields)
-                    if rec.contact_fields == 'name':
-                        # print("key")
-                        vals['name'] = answer
-                    elif rec.contact_fields == 'phone':
-                        # print("key2")
-                        vals['phone'] = answer
-                    elif rec.contact_fields == 'mobile':
-                        # print("key3")
-                        vals['mobile'] = answer
-                    elif rec.contact_fields == 'email':
-                        # print("key4")
-                        vals['email'] = answer
-                    elif rec.contact_fields == 'website':
-                        # print("key5")
-                        vals['website'] = answer
+                if question == rec.question_id and rec.contact_fields_id:
+                    # print("field =", rec.contact_fields_id.name)
+                    # print("answer =", answer)
+                    vals[rec.contact_fields_id.name] = answer
+
             errors.update(question.validate_question(answer, comment))
             if not errors.get(question.id):
                 answer_sudo.save_lines(question, answer, comment)
         # print(vals)
-        # print(vals['name'])
-        request.env['res.partner'].create({
-            'name': vals['name'],
-            'phone': vals['phone'],
-            'mobile': vals['mobile'],
-            'email': vals['email'],
-            'website': vals['website']
-
-        })
+        request.env['res.partner'].create(vals)
         if errors and not (
                 answer_sudo.survey_time_limit_reached or
                 answer_sudo.question_time_limit_reached):

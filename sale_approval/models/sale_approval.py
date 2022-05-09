@@ -37,10 +37,10 @@ class SaleApproval(models.Model):
                     'res_model': 'sale.warning.wizard',
                     'target': 'new'
                 }
-
-                # raise UserError("Need Approval From Manager")
-                # raise ValidationError("Need Approval From Manager")
         return sale
+
+#                # raise UserError("Need Approval From Manager")
+#                # raise ValidationError("Need Approval From Manager")
 
     def action_send_to_manager(self):
         # print(self)
@@ -48,38 +48,51 @@ class SaleApproval(models.Model):
 
     def action_approve(self):
         # print(self)
-        self.state = "sent"
+        # self.state = "sent"
         # if self.state == "sent":
-        #     self.ensure_one()
-        #     template_id = self._find_mail_template()
-        #     lang = self.env.context.get('lang')
-        #     template = self.env['mail.template'].browse(template_id)
-        #     if template.lang:
-        #         lang = template._render_lang(self.ids)[self.id]
-        #     ctx = {
-        #         'default_model': 'sale.order',
-        #         'default_res_id': self.ids[0],
-        #         'default_use_template': bool(template_id),
-        #         'default_template_id': template_id,
-        #         'default_composition_mode': 'comment',
-        #         'mark_so_as_sent': True,
-        #         'default_email_layout_xmlid': "mail.mail_notification_paynow"
-        #         ,
-        #         'proforma': self.env.context.get('proforma', False),
-        #         'force_email': True,
-        #         'model_description': self.with_context(lang=lang).type_name,
-        #     }
-        #     return {
-        #         'type': 'ir.actions.act_window',
-        #         'view_mode': 'form',
-        #         'res_model': 'mail.compose.message',
-        #         'views': [(False, 'form')],
-        #         'view_id': False,
-        #         'target': 'new',
-        #         'context': ctx,
-        #     }
-        return super(SaleApproval, self).action_quotation_send()
+        self.ensure_one()
+        template_id = self._find_mail_template()
+        lang = self.env.context.get('lang')
+        template = self.env['mail.template'].browse(template_id)
+        if template.lang:
+            lang = template._render_lang(self.ids)[self.id]
+        ctx = {
+            'default_model': 'sale.order',
+            'default_res_id': self.ids[0],
+            'default_use_template': bool(template_id),
+            'default_template_id': template_id,
+            'default_composition_mode': 'comment',
+            'mark_so_as_sent': True,
+            'default_email_layout_xmlid': "mail.mail_notification_paynow",
+            'proforma': self.env.context.get('proforma', False),
+            'force_email': True,
+            'model_description': self.with_context(lang=lang).type_name,
+        }
+        return {
+            'type': 'ir.actions.act_window',
+            'view_mode': 'form',
+            'res_model': 'mail.compose.message',
+            'views': [(False, 'form')],
+            'view_id': False,
+            'target': 'new',
+            'context': ctx,
+        }
+        # return super(SaleApproval, self).action_quotation_send()
 
     def action_disapprove(self):
         # print(self,"aa")
         self.state = "draft"
+
+        
+class MailComposeMessage(models.TransientModel):
+    _inherit = "mail.compose.message"
+
+    def action_send_mail(self):
+        sup = super(MailComposeMessage, self).action_send_mail()
+        # print(self.env.context.get('default_model'), "123")
+        active_id = self.env.context.get('active_id')
+        record = self.env["sale.order"].browse(active_id)
+        # print(record, "hii" )
+        record.state = "sent"
+        # record.action_quotation_sent()
+        return sup

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record model="ir.module.category" id="sale_management">
+        <field name="name">Spotter Sale Approval</field>
+        <field name="description">User access level for Spotter sale approval module</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="sale_approval_user" model="res.groups">
+        <field name="name">User</field>
+        <field name="category_id" ref="sale_management"/>
+    </record>
+
+    <record id="sale_approval_manager" model="res.groups">
+        <field name="name">Manager</field>
+        <field name="category_id" ref="sale_management"/>
+        <field name="implied_ids" eval="[(4, ref('sale_approval_user'))]"/>
+        <field name="users" eval="[(4,ref('base.user_root'),(4,ref('base.user_admin')))]"/>
+    </record>
+
+
+</odoo>

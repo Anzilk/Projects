@@ -13,7 +13,8 @@
                                         <tree string="lines" editable="bottom">
                                              <field name="question_id" />
 <!--                                             <field name="survey_contact_id" />-->
-                                            <field name="contact_fields"/>
+<!--                                            <field name="contact_fields"/>-->
+                                            <field name="contact_fields_id"/>
                                         </tree>
 
                                      </field>

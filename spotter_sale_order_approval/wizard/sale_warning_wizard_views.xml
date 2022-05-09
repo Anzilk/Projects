@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+
+        <record id="sale_warning_wizard_view" model="ir.ui.view">
+            <field name="name">Warning</field>
+            <field name="model">warning.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Sale Warning">
+                    <h4>
+
+                         <field name="name" readonly="True"/>
+                    </h4>
+                    <footer>
+                        <button string="Ok" name="action_close"  type="object"  class="btn-primary" />
+                    </footer>
+                </form>
+            </field>
+        </record>
+</odoo>

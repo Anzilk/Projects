@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data>
+
+    <record id="spotter_sale_order_view_form" model="ir.ui.view">
+        <field name="name">spotter.sale.order.view.form.inherit.sale.order</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_confirm']" position="before">
+          <button name="action_submit" type="object"  class="oe_highlight" string="Submit For Approval" attrs="{'invisible': ['|',('state','!=','draft'),('is_first_approve','!=',True)] }"/>
+                <button name="action_first_approval" groups="spotter_sale_order_approval.sale_approval_user" type="object"  class="oe_highlight"  string="Approve" attrs="{'invisible': [('state','!=','first approval')] }"/>
+                <button name="action_second_approval" groups="spotter_sale_order_approval.sale_approval_manager" type="object"  class="oe_highlight"  string="Approve" attrs="{'invisible': [('state','!=','second approval')] }"/>
+<!--                <button name="action_disapprove" groups="sale_approval.sale_approval_manager"  type="object" string="Disapprove"  attrs="{'invisible': [('state','!=','waiting')] }"/>-->
+        </xpath>
+            <xpath expr="//field[@name='state']" position="replace">
+                <field name="state" widget="statusbar" statusbar_visible="draft,first approval,,second approval,sent,sale" />
+            </xpath>
+            <field name="payment_term_id" position="after">
+                <field name="is_first_approve" invisible="True"/>
+                <field name="is_second_approve" />
+            </field>
+        </field>
+    </record>
+
+</data>
+</odoo>
