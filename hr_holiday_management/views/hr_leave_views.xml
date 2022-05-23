@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data>
+
+    <record id="hr_holiday_management_view_form" model="ir.ui.view">
+        <field name="name">hr.holiday.management.view.form.inherit.hr.leave.view.form</field>
+        <field name="model">hr.leave.type</field>
+        <field name="inherit_id" ref="hr_holidays.edit_holiday_status_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='allocation_validation_type']" position="replace">
+                <field name="allocation_validation_type" widget="radio" attrs="{'invisible': [('requires_allocation', '=', 'no')]}" />
+            </xpath>
+           <xpath expr="//group[last()]" position="after">
+               <notebook>
+                        <page string="Approvers" attrs="{'invisible': [('allocation_validation_type', '!=', 'multi')]}">
+                           <field name="leave_validator_line_ids" >
+                                <tree string="lines" editable="bottom">
+                                    <field name="leave_validator_id"/>
+                                    </tree>
+                             </field>
+                        </page>
+                     </notebook>
+           </xpath>
+        </field>
+    </record>
+
+    <record id="hr_leave_approval_view_form" model="ir.ui.view">
+        <field name="name">hr.leave.approval.view.form.inherit.hr.leave.view.form</field>
+        <field name="model">hr.leave</field>
+        <field name="inherit_id" ref="hr_holidays.hr_leave_view_form_manager"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_approve']" position="attributes">
+                <attribute name="attrs" >{'invisible': ['|','|',('can_approve', '=', False), ('state', '!=', 'confirm'), ('is_multi_approval','=',True)] }</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_approve']" position="after">
+                    <button name="action_multiapprovel" type="object" string="Approve" class="oe_highlight"
+                            attrs="{'invisible': ['|', ('is_multi_approval','!=',True),('is_approved','=',True)]}"/>
+                </xpath>
+            <xpath expr="//group[last()]" position="after">
+                <group>
+                 <field name="is_multi_approval" invisible="1"/>
+                 <field name="approval_count" invisible="1"/>
+                 <field name="is_approved" invisible="1"/>
+                </group>
+                <notebook >
+                        <page string="Approvers" attrs="{'invisible': [('is_multi_approval','!=',True)]}" >
+                           <field name="approve_line_ids" attrs="{'readonly': 1}">
+                                <tree string="lines" editable="bottom" create="false">
+                                     <field name="approvers_id" force_save="1"/>
+                                    <field name="status" />
+                                    <field name="comment" attrs="{'readonly': 1}" force_save="1" />
+                                    </tree>
+                             </field>
+                        </page>
+                     </notebook>
+
+            </xpath>
+        </field>
+    </record>
+
+    <record id="hr_leaves_action" model="ir.actions.act_window">
+    <field name="name">Approval Request</field>
+    <field name="res_model">hr.leave</field>
+    <field name="view_mode">tree,form</field>
+        <field name="context">{'search_default_multiapproval': 1}</field>
+    </record>
+
+
+    <record id="hr_leave_approval_view_form_group" model="ir.ui.view">
+        <field name="name">hr.leave.approval.view.form.group.inherit.hr.leave.view.form</field>
+        <field name="model">hr.leave</field>
+        <field name="inherit_id" ref="hr_holiday_management.hr_leave_approval_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='comment']" position="attributes">
+                <attribute name="attrs">{'readonly':0}</attribute>
+            </xpath>
+             <xpath expr="//field[@name='approve_line_ids']" position="attributes">
+                <attribute name="attrs">{'readonly':0}</attribute>
+            </xpath>
+        </field>
+         <field name="groups_id" eval="[(6, 0, [ref('hr_holidays.group_hr_holidays_user')])]"/>
+    </record>
+
+    <record id="hr_holidays_management_search_filter" model="ir.ui.view">
+   <field name="name">hr.holidays.filter</field>
+   <field name="model">hr.leave</field>
+        <field name="inherit_id" ref="hr_holidays.view_hr_holidays_filter"/>
+   <field name="arch" type="xml">
+      <xpath expr="//search" position="inside">
+         <filter string="Multiple Approval" name="multiapproval" domain="[['is_multi_approval', '=', True]]"/>
+      </xpath>
+   </field>
+</record>
+
+
+
+</data>
+</odoo>

@@ -12,3 +12,8 @@ class PurchaseOrder(models.Model):
             'res_model': 'purchase.advance.payment',
             'target': 'new'
         }
+
+class PurchaseOrderLine(models.Model):
+    _inherit = "purchase.order.line"
+
+    is_advance_payment = fields.Boolean("advance Payment", readonly=True)

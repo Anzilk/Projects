@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem
+            action="hr_leaves_action"
+            id="stock_repair_menu"
+            parent="hr_holidays.menu_hr_holidays_approvals" sequence="150"
+            />
+
+</odoo>

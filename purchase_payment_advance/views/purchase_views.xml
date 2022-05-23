@@ -11,6 +11,9 @@
               <button name="action_invoice"  class="oe_highlight"   string="Create Bill"
                       attrs="{'invisible': ['|', ('state', 'not in', ('purchase', 'done')), ('invoice_status', 'in', ('no', 'invoiced'))]}" type="object"/>
             </xpath>
+            <xpath expr="//field[@name='invoice_lines']" position="after">
+                <field name="is_advance_payment" invisible="1"/>
+              </xpath>
         </field>
     </record>
 
