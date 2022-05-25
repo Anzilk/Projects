@@ -34,15 +34,12 @@ class PurchaseAdvancePaymentInv(models.TransientModel):
 
     # to get advance payment amount and name
     def _get_advance_details(self, order):
-        # context = {'lang': order.partner_id.lang}
         if self.advance_payment_method == 'percentage':
             amount = order.amount_untaxed * self.amount / 100
             name = _("Down payment of %s%%") % (self.amount)
         else:
             amount = self.fixed_amount
             name = _('Down Payment')
-        # del context
-
         return amount, name
 
     # if there is no product on settings then set a default one
@@ -50,7 +47,7 @@ class PurchaseAdvancePaymentInv(models.TransientModel):
         return {
             'name': 'Down payment',
             'type': 'service',
-            'invoice_policy': 'order',
+             'purchase_method': 'purchase',
             'company_id': False,
         }
 
@@ -62,9 +59,10 @@ class PurchaseAdvancePaymentInv(models.TransientModel):
             'product_qty': 0.0,
             'order_id': order.id,
             'product_uom': self.product_id.uom_id.id,
+            'taxes_id': self.product_id.supplier_taxes_id,
             'product_id': self.product_id.id,
-            'sequence': order.order_line and order.order_line[-1].sequence + 1
-                        or 10,
+            'sequence':
+                order.order_line and order.order_line[-1].sequence + 1 or 10,
             'is_advance_payment': True
         }
         return po_values
@@ -86,11 +84,13 @@ class PurchaseAdvancePaymentInv(models.TransientModel):
                 'quantity': 1.0,
                 'product_id': self.product_id.id,
                 'product_uom_id': po_line.product_uom.id,
+                'tax_ids': [(6, 0, po_line.taxes_id.ids)],
 
             })],
         }
         return invoice_vals
 
+    # create invoice for downpayment invoice
     def _create_invoice(self, order, po_line):
         if (self.advance_payment_method == 'percentage'
             and self.amount <= 0.00) or (
@@ -100,18 +100,18 @@ class PurchaseAdvancePaymentInv(models.TransientModel):
                               'must be positive.'))
 
         amount, name = self._get_advance_details(order)
-
         invoice_vals = self._prepare_invoice_values(order, name, amount,
                                                     po_line)
-
         if order.fiscal_position_id:
             invoice_vals['fiscal_position_id'] = order.fiscal_position_id.id
 
         invoice = self.env['account.move'].with_company(order.company_id)\
             .sudo().create(invoice_vals).with_user(self.env.uid)
         invoice.message_post_with_view('mail.message_origin_link',
-                    values={'self': invoice, 'origin': order},
-                    subtype_id=self.env.ref('mail.mt_note').id)
+                                       values={'self': invoice, 'origin': order
+                                               },
+                                       subtype_id=self.env.ref('mail.mt_note'
+                                                               ).id)
         return invoice
 
     # button action create invoices
@@ -119,9 +119,13 @@ class PurchaseAdvancePaymentInv(models.TransientModel):
         purchase_orders = self.env['purchase.order'].browse(
             self.env.context.get('active_id'))
         if self.advance_payment_method == 'delivered':
-            purchase_orders.action_create_invoice()
+            deducted_regular_invoice = purchase_orders.action_create_invoice()
+            if self._context.get('open_invoices', False):
+                return deducted_regular_invoice
         elif self.advance_payment_method == 'regular':
-            self.regular_invoice(purchase_orders)
+            regular_invoice = self.regular_invoice(purchase_orders)
+            if self._context.get('open_invoices', False):
+                return purchase_orders.action_view_invoice(regular_invoice)
         else:
             settings_product = self.env[
                                    'ir.config_parameter'].sudo().get_param(
@@ -141,7 +145,7 @@ class PurchaseAdvancePaymentInv(models.TransientModel):
                         _("The product used to invoice a down payment should"
                           " be of type 'Service'. Please use another product"
                           " or update this product."))
-                if self.product_id.invoice_policy != 'order':
+                if self.product_id.purchase_method != 'purchase':
                     raise UserError(
                         _('The product used to invoice a down payment '
                           'should have an invoice policy set to "Ordered'
@@ -152,7 +156,8 @@ class PurchaseAdvancePaymentInv(models.TransientModel):
                 invoice = self._create_invoice(order, po_line)
                 # to set related invoice lines to po invoice line
                 po_line.invoice_lines = invoice.invoice_line_ids.ids
-                return purchase_orders.action_view_invoice(invoice)
+                if self._context.get('open_invoices', False):
+                    return purchase_orders.action_view_invoice(invoice)
 
     # to create the regular bill
     def regular_invoice(self, orders):
@@ -163,7 +168,6 @@ class PurchaseAdvancePaymentInv(models.TransientModel):
         for order in orders:
             if order.invoice_status != 'to invoice':
                 continue
-
             order = order.with_company(order.company_id)
             # Invoice values.
             invoice_vals = self._prepare_regular_invoice(order)
@@ -223,12 +227,11 @@ class PurchaseAdvancePaymentInv(models.TransientModel):
 
         # 3) Create invoices.
         moves = self.env['account.move']
-        accountmove = self.env['account.move'].with_context(
+        account_move = self.env['account.move'].with_context(
             default_move_type='in_invoice')
         for vals in invoice_vals_list:
-            moves |= accountmove.with_company(
+            moves |= account_move.with_company(
                 vals['company_id']).create(vals)
-
         # 4) Some moves might actually be refunds: convert them if the total
         # amount is negative
         # We do this after the moves have been created since we need taxes,
@@ -236,9 +239,9 @@ class PurchaseAdvancePaymentInv(models.TransientModel):
         # is actually negative or not
         moves.filtered(
             lambda m: m.currency_id.round(
-                m.amount_total) < 0).action_switch_invoice_into_refund_credit_note()
-
-        return orders.action_view_invoice(moves)
+                m.amount_total) < 0
+        ).action_switch_invoice_into_refund_credit_note()
+        return moves
 
     # prepare values for regular invoice
     def _prepare_regular_invoice(self, order):

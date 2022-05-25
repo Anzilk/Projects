@@ -13,6 +13,7 @@ class PurchaseOrder(models.Model):
             'target': 'new'
         }
 
+
 class PurchaseOrderLine(models.Model):
     _inherit = "purchase.order.line"
 
