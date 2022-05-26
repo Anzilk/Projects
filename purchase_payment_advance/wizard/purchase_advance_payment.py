@@ -1,4 +1,4 @@
-from odoo import fields, models, _
+from odoo import fields, api, models, _
 from odoo.exceptions import UserError
 import time
 from odoo.tools.float_utils import float_is_zero
@@ -9,9 +9,21 @@ class PurchaseAdvancePaymentInv(models.TransientModel):
     _name = "purchase.advance.payment"
     _description = "Purchase Advance Payment Invoice"
 
+    @api.model
+    def _default_has_down_payment(self):
+        if self._context.get(
+                'active_model') == 'purchase.order' and self._context.get(
+                'active_id', False):
+            po_order = self.env['purchase.order'].browse(
+                self._context.get('active_id'))
+            return po_order.order_line.filtered(
+                lambda po_order_line: po_order_line.is_advance_payment
+            )
+
+        return False
+
     advance_payment_method = fields.Selection([
-        ('regular', 'Regular bill'),
-        ('delivered', 'Regular bill(deduct down payments)'),
+        ('delivered', 'Regular bill'),
         ('percentage', 'Down payment (percentage)'),
         ('fixed', 'Down payment (fixed amount)')
         ], string='Create Bill', default='delivered', required=True,
@@ -19,7 +31,7 @@ class PurchaseAdvancePaymentInv(models.TransientModel):
              " for billing, according to their control policy "
              "(based on ordered or received quantity).")
     deduct_down_payments = fields.Boolean('Deduct down payments', default=True)
-    has_down_payments = fields.Boolean('Has down payments', readonly=True)
+    has_down_payments = fields.Boolean('Has down payments',default=_default_has_down_payment, readonly=True)
     product_id = fields.Many2one('product.product',
                                  string='Down Payment Product',
                                  domain=[('type', '=', 'service')])
@@ -49,6 +61,7 @@ class PurchaseAdvancePaymentInv(models.TransientModel):
             'type': 'service',
              'purchase_method': 'purchase',
             'company_id': False,
+            'supplier_taxes_id': False
         }
 
     # prepare purchase order lines
@@ -119,11 +132,8 @@ class PurchaseAdvancePaymentInv(models.TransientModel):
         purchase_orders = self.env['purchase.order'].browse(
             self.env.context.get('active_id'))
         if self.advance_payment_method == 'delivered':
-            deducted_regular_invoice = purchase_orders.action_create_invoice()
-            if self._context.get('open_invoices', False):
-                return deducted_regular_invoice
-        elif self.advance_payment_method == 'regular':
-            regular_invoice = self.regular_invoice(purchase_orders)
+            regular_invoice = self.regular_invoice(
+                purchase_orders, final=self.deduct_down_payments)
             if self._context.get('open_invoices', False):
                 return purchase_orders.action_view_invoice(regular_invoice)
         else:
@@ -160,7 +170,7 @@ class PurchaseAdvancePaymentInv(models.TransientModel):
                     return purchase_orders.action_view_invoice(invoice)
 
     # to create the regular bill
-    def regular_invoice(self, orders):
+    def regular_invoice(self, orders, final=False):
         """Create the invoice associated to the PO.
         """
         # 1) Prepare invoice vals and clean-up the section lines
@@ -171,7 +181,7 @@ class PurchaseAdvancePaymentInv(models.TransientModel):
             order = order.with_company(order.company_id)
             # Invoice values.
             invoice_vals = self._prepare_regular_invoice(order)
-            invoiceable_lines = self._get_invoiceable_lines(order)
+            invoiceable_lines = self._get_invoiceable_lines(order, final)
             # Invoice line values (keep only necessary sections).
             for line in invoiceable_lines:
                 res = {
@@ -283,8 +293,9 @@ class PurchaseAdvancePaymentInv(models.TransientModel):
         return invoice_vals
 
     # to get the po lines to invoice for a regular bill
-    def _get_invoiceable_lines(self, order):
+    def _get_invoiceable_lines(self, order, final):
         """Return the invoiceable lines for order `self`."""
+        down_payment_line_ids = []
         invoiceable_line_ids = []
         pending_section = None
         precision = self.env['decimal.precision'].precision_get(
@@ -297,9 +308,16 @@ class PurchaseAdvancePaymentInv(models.TransientModel):
             if line.display_type != 'line_note' and float_is_zero(
                     line.qty_to_invoice, precision_digits=precision):
                 continue
-            if line.qty_to_invoice > 0 or line.display_type == 'line_note':
+            if line.qty_to_invoice > 0 or (line.qty_to_invoice < 0 and final) \
+                    or line.display_type == 'line_note':
+                if line.is_advance_payment:
+                    # Keep down payment lines separately, to put them together
+                    # at the end of the invoice, in a specific dedicated section.
+                    down_payment_line_ids.append(line.id)
+                    continue
                 if pending_section:
                     invoiceable_line_ids.append(pending_section.id)
                     pending_section = None
                 invoiceable_line_ids.append(line.id)
-        return self.env['purchase.order.line'].browse(invoiceable_line_ids)
+        return self.env['purchase.order.line'].browse(
+            invoiceable_line_ids+ down_payment_line_ids)

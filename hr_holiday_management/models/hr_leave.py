@@ -7,7 +7,7 @@ class HrLeaveType(models.Model):
 
     leave_validator_line_ids = fields.One2many('hr.leave.type.lines',
                                                "line_id")
-    allocation_validation_type = fields.Selection(
+    leave_validation_type = fields.Selection(
         selection_add=[('multi', 'Multiple Approval')],
         ondelete={'multi': 'set default'})
 
@@ -26,15 +26,29 @@ class HrLeave(models.Model):
 
     approve_line_ids = fields.One2many('hr.leave.lines', "line_id")
     is_multi_approval = fields.Boolean("multi approval")
-    is_approved = fields.Boolean("approved")
+    is_approved = fields.Boolean("approved", compute="compute_is_approved")
     approval_count = fields.Integer("count")
+
+    # @api.depends(
+    #     "holiday_status_id.leave_validator_line_ids.leave_validator_id")
+    def compute_is_approved(self):
+        for record in self:
+            record.is_approved = True
+            for line in record.approve_line_ids:
+                if self.env.uid == line.approvers_id.id and \
+                        line.status == 'to approve':
+                    record.is_approved = False
+                    break
+                else:
+                    record.is_approved = True
 
     # when change time off type  approvers are added if it is based on
     # multiple approval
     @api.onchange('holiday_status_id')
     def _onchange_holiday_status_id(self):
         vals = []
-        if self.holiday_status_id.allocation_validation_type == 'multi':
+        self.approval_count = 0
+        if self.holiday_status_id.leave_validation_type == 'multi':
             self.update({'is_multi_approval': True})
         else:
             self.update({'is_multi_approval': False})
@@ -53,7 +67,7 @@ class HrLeave(models.Model):
                 self.approval_count = self.approval_count+1
                 if self.approval_count == len(self.approve_line_ids):
                     self.state = 'validate1'
-                    self.is_approved = True
+                    # self.is_approved = True
 
 
 class HrLeaveLines(models.Model):
