@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Top menu item -->
+    <menuitem
+        id="document_menu_root"
+        name="Document"
+        sequence="25"/>
+
+    <menuitem
+        id="document_menu"
+        name="Document"
+        parent="document_menu_root"
+        action="action_view_document"
+        sequence="1"/>
+
+    <menuitem
+        id="document_config_menu"
+        name="Configuration"
+        parent="document_menu_root"
+        sequence="20"/>
+
+    <menuitem
+        id="document_tags"
+        name="Tags"
+        parent="document_config_menu"
+        sequence="1"/>
+<!--        action="crm.action_opportunity_forecast"-->
+
+</odoo>
+

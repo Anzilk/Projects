@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="document_view_tree" model="ir.ui.view">
+            <field name="name">document.view.tree</field>
+            <field name="model">document.document</field>
+            <field name="arch" type="xml">
+                <tree string="Document">
+                    <field name="attachment_name"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="document_view_form" model="ir.ui.view">
+            <field name="name">document.view.form</field>
+            <field name="model">document.document</field>
+            <field name="arch" type="xml">
+                <form string="Document">
+                    <header>
+                        <button string="Create Spreadsheet" type="object" name="spreadsheet"
+                                class="oe_highlight o_documents_spreadsheet"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <field name="attachment_name"/>
+                            <field name="attachment"/>
+                            <field name="attachment_view"/>
+                            <field name="type"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_view_document" model="ir.actions.act_window">
+            <field name="name">Documents</field>
+            <field name="res_model">document.document</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Add a new document
+                </p>
+            </field>
+        </record>
+
+    </data>
+</odoo>
