@@ -1,13 +1,15 @@
 from odoo import models, api
-import xlrd
 import csv
 import base64
+from pathlib import Path
+import codecs
 import xlsxwriter
 from xlutils.copy import copy
 import xlrd
 import tempfile
 import xlwt
 import io
+from openpyxl.styles import Font
 from django.http import HttpResponse
 import pandas as pd
 from openpyxl import load_workbook
@@ -17,16 +19,30 @@ class AttachmentSpreadsheet(models.Model):
     _inherit = 'ir.attachment'
 
     def get_doc_file_data(self, *args):
+        print(type(args),args,"svv")
         attachment = self.env['ir.attachment'].search([('id', '=', args[0])])
         bin_data = base64.b64decode(attachment.datas)
-        wb = xlrd.open_workbook(file_contents=bin_data)
+        wb = xlrd.open_workbook(file_contents=bin_data, formatting_info=True)
         # sheet = wb.sheets()[0]
         for s in wb.sheets():
             values = []
             for row in range(s.nrows):
                 col_value = []
                 for col in range(s.ncols):
+                    font = wb.font_list
+
+                    # a=(s.cell(row, col))
+                    # print("cell.xf_index is", a.xf_index)
+                    # fmt = wb.xf_list[a.xf_index]
+                    # print("type(fmt) is", type(fmt))
                     value = (s.cell(row, col).value)
+                    # size = s.cell(row, col).font.size
+                    cell_xf = wb.xf_list[s.cell_xf_index(row, col)]
+                    print(font[cell_xf.font_index].__dict__,"format")
+                    print(value, "value")
+                    # print(size,"fontsize")
+                    # print("Dumped Info:")
+                    # fmt.dump()
                     try:
                         value = str(int(value))
                     except:
@@ -39,18 +55,16 @@ class AttachmentSpreadsheet(models.Model):
     def add_data_spreadsheet(self, f_value, doc_id, r_value=0, c_value=0, ):
         # print(f_value,"hj")
         # print(r_value,c_value,"row col")
-        # print(doc_id)
+        # print(type(doc_id),"doc_id")
+        # print(r_value,"r value is")
+        # print(r_value,"r value is after")
         row_value = int(r_value) - 1
+        # print(r_value, "r value is after")
         col_value = int(c_value) - 1
         # print(r_value, c_value, "row col after")
         attachment = self.env['ir.attachment'].browse(doc_id)
-        print(attachment,"attachment")
-        print(attachment.datas, "type")
-        print(attachment.store_fname, "filename")
         # print(type(attachment.datas),"type")
         bin_data = base64.b64decode(attachment.datas)
-        print('bin_data', type(bin_data), bin_data)
-        file_path = tempfile.gettempdir() + '/file.xls'
         # data = attachment.file_import
         # f = open(file_path, 'wb')
         # f.write(data.decode('base64'))
@@ -65,10 +79,26 @@ class AttachmentSpreadsheet(models.Model):
         workbook_w = copy(workbook_r)
 
         sheet_w = workbook_w.get_sheet(0)
-        # print("sheet w ", sheet_w)
-        sheet_w.write(row_value, col_value, f_value)
-        workbook_w.save('/home/cybrosys/Downloads/Untitled 1.xlsx')
+        print("sheet w ", sheet_w)
+        print("workbook_w ", workbook_w)
+        # style = workbook_w.add_format({'bold': True})
 
+        # style = xlwt.easyxf('font: bold 1')
+        sheet_w.write(row_value, col_value, f_value)
+        # print("dec bin data",sheet_w,"type=",type(sheet_w))
+        # sheet = base64.b64decode(sheet_w)
+        # print("decoded sheet" ,sheet)
+
+        workbook_w.save(Path(Path.home(),'sampl.xlsx'))
+
+        stp_file = Path(Path.home(), 'sampl.xlsx')
+        stp_object_file = open(stp_file, 'rb')
+        stp_object_file_encode = base64.b64encode(stp_object_file.read())
+        stp_object_file_encode = stp_object_file_encode.decode('utf-8')
+        # print(content,"new content")
+        # a = base64.b64encode(bin_data)
+        # print("a",a)
+        attachment.write({'datas': stp_object_file_encode})
         # workbook_w.close()
         # data = io.BytesIO(sheet_w)
         # data_record = base64.b64encode(data)

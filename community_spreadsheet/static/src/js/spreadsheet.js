@@ -8,8 +8,9 @@ var rpc = require('web.rpc');
 
 FormRenderer.include({
     events: _.extend({}, FormRenderer.prototype.events, {
-            'dblclick': '_onEditDblClick',
-            'blur .tablecoloumn': '_onBlur'
+            'dblclick ': '_onEditDblClick',
+            'blur .tablecolumn': '_onBlur',
+//            'blur .font size': '_selection_onblur'
         }),
     custom_events: _.extend({}, FormRenderer.prototype.custom_events, {
         button_clicked: '_onButtonClicked',
@@ -26,6 +27,42 @@ FormRenderer.include({
             var self = this
             ev.stopPropagation();
             this.$el.html(QWeb.render('template.spreadsheet'));
+            function addnewTable() {
+             var myTableDiv1 = document.getElementById("myDynamicTable");
+            console.log("hii")
+//            var table1 = document.createElement('TABLE');
+//                    table1.border = '1';
+//                    var tableBody1 = document.createElement('TBODY');
+//                    table1.appendChild(tableBody1);
+//                    var tr1 = document.createElement('TR');
+//                    tableBody1.appendChild(tr1);
+//                    var td1 = document.createElement('TD');
+//                     tr1.appendChild(td1);
+//                     td1.value = '1ufkdl'
+//                     td1.width = '90px';
+//                        td1.height = '30px';
+//                        myTableDiv1.appendChild(table1);
+//                        td1.id = "font"
+
+                    var select = document.createElement("select");
+                    select.name = "Font size";
+                    select.id = "font size"
+                     const attribute = document.createAttribute("style");
+                        attribute.value = "width:90px";
+                        select.setAttributeNode(attribute);
+                        var option = document.createElement("option");
+                        option.value = 13;
+                        option.text = 13;
+                    for(var i=6; i<=96;i++)
+                    {
+                        var option = document.createElement("option");
+                        option.value = i;
+                        option.text = i;
+                        select.appendChild(option);
+                    }
+                    myTableDiv1.appendChild(select);
+                     }
+                     console.log(this,"thisnew")
             function addTable(row, column) {
                 var args = [
                     self.allFieldWidgets["document.document_1"][0].value,
@@ -54,6 +91,11 @@ FormRenderer.include({
 
                     for (var j = 0; j < column; j++) {
                         var td = document.createElement('TD');
+                        const attribute = document.createAttribute("class");
+                        attribute.value = "tablecolumn";
+                        td.setAttributeNode(attribute);
+
+
                         td.width = '90px';
                         td.height = '30px';
                         td.dataset.row = i;
@@ -92,33 +134,50 @@ FormRenderer.include({
                 myTableDiv.appendChild(table);
             });
         }
+        addnewTable();
         addTable(30,25);
         }
     },
 
     _onEditDblClick: function(ev) {
-    console.log(ev,"ev")
-//    const att = document.createAttribute("contentEditable");
+    console.log(ev.target,"ev")
+    console.log(ev.target.classList[0],"ev")
+    const att = document.createAttribute("contentEditable");
         var $tag = $(ev.target)[0]
-//        att.value = "true";
-        setAttributes($tag, {"contentEditable": "true", "class": "tablecoloumn"});
-//        $tag.setAttributeNode(att);
+        att.value = "true";
+//        setAttributes($tag, {"contentEditable": "true", "class": "tablecoloumn"});
+        $tag.setAttributeNode(att);
 //        if($(ev.target)[0].localName === 'td'){
 //            $($tag).replaceWith(`<input class="edit_td" value="${$tag.innerText}">${$(self).text()}</input>`);
 //        }
-            function setAttributes(el, attrs) {
-              for(var key in attrs) {
-                el.setAttribute(key, attrs[key]);
-              }
-}
+//            function setAttributes(el, attrs) {
+//              for(var key in attrs) {
+//                el.setAttribute(key, attrs[key]);
+//              }
+//            }
     },
 
     _onBlur:function(event){
     console.log(this,"this")
     console.log(event,"event")
-    var row = event.target.attributes[0].nodeValue
-    var column = event.target.attributes[1].nodeValue
+    console.log(event.target,"target")
+//    const attribute = document.createAttribute("style");
+//                        attribute.value = "font-size:";
+//                        event.target.setAttributeNode(attribute);
+    var row = event.target.attributes[1].nodeValue
+    var column = event.target.attributes[2].nodeValue
     var changed_value = event.target.textContent
+    var fontsize = document.getElementById('font size').value
+    fontsize = fontsize+'px'
+    console.log(fontsize,"fontsize")
+    event.target.style["font-size"]= fontsize;
+//    setAttributes(event.target, {"style": fontsize});
+//     function setAttributes(el, attrs) {
+//     console.log("hiiiiiiii")
+//              for(var key in attrs) {
+//                el.setAttribute(key, attrs[key]);
+//              }
+//            }
 
     console.log(row,"row",column,"col",changed_value,"changed_value")
 //    console.log(event.target.attributes[0].nodeValue,"row")
@@ -157,7 +216,7 @@ FormRenderer.include({
 //        console.log(inputColumn,"column")
 //        var inputRow = $('.edit_td')[0].nextSibling.attributes[2].value
         var docId = this.allFieldWidgets["document.document_1"][1].value.res_id
-        console.log(docId,"docid")
+        console.log(this.allFieldWidgets[0],"docid")
         this._rpc({
                model: 'ir.attachment',
                method: 'add_data_spreadsheet',
@@ -174,6 +233,9 @@ FormRenderer.include({
             });
 
     },
+//    _selection_onblur:function(event){
+//    console.log("hii this",this)
+//    },
 
 
 });
