@@ -8,6 +8,7 @@ var rpc = require('web.rpc');
 
 FormRenderer.include({
     events: _.extend({}, FormRenderer.prototype.events, {
+    'click #bold': '_onbold',
             'dblclick ': '_onEditDblClick',
             'blur .tablecolumn': '_onBlur',
 //            'blur .font size': '_selection_onblur'
@@ -28,22 +29,11 @@ FormRenderer.include({
             ev.stopPropagation();
             this.$el.html(QWeb.render('template.spreadsheet'));
             function addnewTable() {
-             var myTableDiv1 = document.getElementById("myDynamicTable");
+             var toolbardiv = document.getElementById("toolbar");
+             var divbold = document.getElementById("bold");
+             divbold.style.marginLeft = "100px";
+             divbold.style.marginTop = "-20px";
             console.log("hii")
-//            var table1 = document.createElement('TABLE');
-//                    table1.border = '1';
-//                    var tableBody1 = document.createElement('TBODY');
-//                    table1.appendChild(tableBody1);
-//                    var tr1 = document.createElement('TR');
-//                    tableBody1.appendChild(tr1);
-//                    var td1 = document.createElement('TD');
-//                     tr1.appendChild(td1);
-//                     td1.value = '1ufkdl'
-//                     td1.width = '90px';
-//                        td1.height = '30px';
-//                        myTableDiv1.appendChild(table1);
-//                        td1.id = "font"
-
                     var select = document.createElement("select");
                     select.name = "Font size";
                     select.id = "font size"
@@ -60,7 +50,25 @@ FormRenderer.include({
                         option.text = i;
                         select.appendChild(option);
                     }
-                    myTableDiv1.appendChild(select);
+                    toolbardiv.appendChild(select);
+                    var select = document.createElement("select");
+                    var inputbold = document.createElement("input");
+                    inputbold.size = '4';
+                    inputbold.value = "B";
+                    inputbold.readOnly ="true"
+                    inputbold.id="inputbold"
+                    divbold.appendChild(inputbold);
+
+
+//                    var inputunselect = document.createElement("input");
+//                    inputunselect.size = '4';
+//                    inputunselect.value = "B";
+//                    inputunselect.readOnly ="true"
+//                    inputunselect.id="boldunselect"
+//                    divbold.appendChild(boldunselect);
+//                    inputunselect.hidden = "true"
+
+
                      }
                      console.log(this,"thisnew")
             function addTable(row, column) {
@@ -117,13 +125,19 @@ FormRenderer.include({
                             td.appendChild(document.createTextNode(val));
                             val += 1;
                         }
-                        var row_len = result.length
-                        var col_len = result[0].length
+                        var row_len = result[0].length
+                        var col_len = result[0][0].length
                         if(i != 0 && j != 0){
                             for(var k = 0; k < row_len; k++){
                                 for(var l = 0; l < col_len; l++){
                                     if(k+1 === i && l+1 === j){
-                                        td.appendChild(document.createTextNode(result[k][l]));
+                                        td.appendChild(document.createTextNode(result[0][k][l]));
+//                                        console.log(result[0][k][l],"value")
+//                                        console.log(result[1][k][l],"italics")
+//                                        console.log(td,"td")
+                                        if(result[1][k][l] ==1){
+                                        td .style.fontStyle ="italic";
+                                        }
                                     }
                                 }
                             }
@@ -140,8 +154,10 @@ FormRenderer.include({
     },
 
     _onEditDblClick: function(ev) {
-    console.log(ev.target,"ev")
+    console.log(ev,"ev")
     console.log(ev.target.classList[0],"ev")
+    if(ev.target.classList[0] =="tablecolumn")
+    {
     const att = document.createAttribute("contentEditable");
         var $tag = $(ev.target)[0]
         att.value = "true";
@@ -155,6 +171,7 @@ FormRenderer.include({
 //                el.setAttribute(key, attrs[key]);
 //              }
 //            }
+        }
     },
 
     _onBlur:function(event){
@@ -236,6 +253,28 @@ FormRenderer.include({
 //    _selection_onblur:function(event){
 //    console.log("hii this",this)
 //    },
+
+        _onbold:function(event){
+    console.log("hii hello this is",this)
+    var button = document.getElementById("inputbold");
+    console.log(button,"button")
+    var click = 0
+    if(click%2==0)
+    {
+    button.style.backgroundColor ="#8e9490";
+    click = click+1;
+    }
+    else
+    {
+    button.style.backgroundColor.remove();
+    }
+
+//    button.hidden = "true"
+//    var unselectbutton = document.getElementById("boldunselect");
+//    unselectbutton.hidden = "false"
+//    console.log("unselectbutton",unselectbutton)
+
+    },
 
 
 });
