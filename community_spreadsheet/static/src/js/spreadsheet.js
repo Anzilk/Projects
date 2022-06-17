@@ -31,7 +31,6 @@ FormRenderer.include({
 //            function for add tools
             function add_tools() {
              var toolbardiv = document.getElementById("toolbar");
-             console.log(toolbardiv,"toolbar")
              toolbardiv.style.height = '35px';
              var div_bold = document.getElementById("bold");
              div_bold.style.marginLeft = "100px";
@@ -39,14 +38,12 @@ FormRenderer.include({
              div_bold.style.height = "35px";
 //   selection tag for fontsize
                     var select = document.createElement("select");
+                    console.log(select,"select tag")
                     select.name = "Font size";
-                    select.id = "font size";
+                    select.id = "fontsize";
                     select.style.height = "35px";
                     select.style.width = "70px";
                     select.style.marginLeft = "10px";
-//                     const attribute = document.createAttribute("style");
-//                        attribute.value = "width:90px";
-//                        select.setAttributeNode(attribute);
                         var option = document.createElement("option");
                         option.value = 13;
                         option.text = 13;
@@ -322,7 +319,7 @@ FormRenderer.include({
 
     _onEditDblClick: function(ev) {
     console.log(ev,"ev")
-    console.log(ev.target,"td current")
+    console.log(ev.target.style.fontWeight,"td current")
     if(ev.target.classList[0] =="tablecolumn")
     {
     const att = document.createAttribute("contentEditable");
@@ -331,6 +328,131 @@ FormRenderer.include({
 //        setAttributes($tag, {"contentEditable": "true", "class": "tablecoloumn"});
         $tag.setAttributeNode(att);
         }
+        var font = ev.target.style.fontSize;
+        font = font.slice(0, -2);
+        console.log(font ,"after slice")
+       $('#fontsize').val(font);
+       if(font == '')
+       {
+       $('#fontsize').val(13);
+       }
+    var bold = document.getElementById('inputbold')
+     var not_bold = document.getElementById("boldunselect");
+     var not_italics = document.getElementById("unselectitalics");
+    var italics = document.getElementById("inputitalics");
+    var not_underline = document.getElementById("unselectunderline");
+    var underline = document.getElementById("inputunderline");
+    var not_left_align = document.getElementById("unselectleftalign");
+    var left_align = document.getElementById("inputleftalign");
+    var not_center_align = document.getElementById("unselectcenteralign");
+    var center_align = document.getElementById("inputcenteralign");
+    var not_right_align = document.getElementById("unselectrightalign");
+    var right_align = document.getElementById("inputrightalign");
+     var not_top_align = document.getElementById("unselecttopalign");
+    var top_align = document.getElementById("inputtopalign");
+    var not_ver_center_align = document.getElementById("unselectvercenteralign");
+    var ver_center_align = document.getElementById("inputvercenteralign");
+    var not_bottom_align = document.getElementById("unselectbottomalign");
+    var bottom_align = document.getElementById("inputbottomalign");
+//    cell already have formats then tools are selected
+    if(ev.target.style.fontWeight == "bold")
+    {
+       bold.hidden = false;
+       not_bold.hidden = true;
+    }
+    else
+    {
+    bold.hidden = true;
+       not_bold.hidden = false;
+    }
+     if(ev.target.style.fontStyle == "italic")
+    {
+       italics.hidden = false;
+       not_italics.hidden = true;
+    }
+    else
+    {
+    italics.hidden = true;
+       not_italics.hidden = false;
+    }
+    if(ev.target.style.textDecoration == "underline")
+    {
+       underline.hidden = false;
+       not_underline.hidden = true;
+    }
+    else
+    {
+     underline.hidden = true;
+       not_underline.hidden = false;
+    }
+
+     if(ev.target.style.textAlign == "left")
+    {
+       left_align.hidden = false;
+       not_left_align.hidden = true;
+    }
+    else
+    {
+     left_align.hidden = true;
+       not_left_align.hidden = false;
+    }
+     if(ev.target.style.textAlign == "center")
+    {
+       center_align.hidden = false;
+       not_center_align.hidden = true;
+    }
+    else
+    {
+     center_align.hidden = true;
+       not_center_align.hidden = false;
+    }
+    if(ev.target.style.textAlign == "right")
+    {
+       right_align.hidden = false;
+       not_right_align.hidden = true;
+    }
+    else
+    {
+     right_align.hidden = true;
+       not_right_align.hidden = false;
+    }
+
+
+
+    if(ev.target.style.verticalAlign == "top")
+    {
+       top_align.hidden = false;
+       not_top_align.hidden = true;
+    }
+    else
+    {
+     top_align.hidden = true;
+       not_top_align.hidden = false;
+    }
+     if(ev.target.style.verticalAlign == "middle")
+    {
+       ver_center_align.hidden = false;
+       not_ver_center_align.hidden = true;
+    }
+    else
+    {
+     ver_center_align.hidden = true;
+       not_ver_center_align.hidden = false;
+    }
+     if(ev.target.style.verticalAlign == "bottom")
+    {
+       bottom_align.hidden = false;
+       not_bottom_align.hidden = true;
+    }
+    else
+    {
+     bottom_align.hidden = true;
+       not_bottom_align.hidden = false;
+    }
+
+
+
+
     },
 
     _onBlur:function(event){
@@ -338,7 +460,7 @@ FormRenderer.include({
     var row = event.target.attributes[1].nodeValue
     var column = event.target.attributes[2].nodeValue
     var changed_value = event.target.textContent
-    var orginal_fontsize = document.getElementById('font size').value
+    var orginal_fontsize = document.getElementById('fontsize').value
 //    to set bold  to coloumn value on bold tool select
     var selectbold = document.getElementById('inputbold')
     var boldvalue
@@ -432,7 +554,7 @@ FormRenderer.include({
     vertical_align_value ="bottom"
     }
     var fontsize = orginal_fontsize+'px'
-    event.target.style["font-size"]= fontsize;
+    event.target.style.fontSize= fontsize;
         var docId = this.allFieldWidgets["document.document_1"][1].value.res_id
         this._rpc({
                model: 'ir.attachment',

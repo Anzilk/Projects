@@ -79,6 +79,11 @@ class AttachmentSpreadsheet(models.Model):
                              vertical_align_value="bottom"):
         row_value = int(r_value)
         col_value = int(c_value)
+        # print(fontsize, "fontsize")
+        if fontsize == '':
+            fontsize=13;
+        # print(fontsize,"fontsizezz")
+        # fontsize = int(fontsize)
         attachment = self.env['ir.attachment'].browse(doc_id)
         bin_data = base64.b64decode(attachment.datas)
         # f = open(file_path, 'wb')
